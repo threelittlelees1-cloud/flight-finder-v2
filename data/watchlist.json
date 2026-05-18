@@ -1,0 +1,16 @@
+{
+  "watchlist": [
+    {
+      "id": "jfk-lax-summer",
+      "label": "Summer trip to LA",
+      "origin": "JFK",
+      "destination": "LAX",
+      "departureDate": "2026-06-20",
+      "returnDate": "2026-06-27",
+      "nonStop": false,
+      "currencyCode": "USD",
+      "maxPrice": 350,
+      "maxResults": 3
+    }
+  ]
+}

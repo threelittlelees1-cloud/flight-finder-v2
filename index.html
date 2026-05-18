@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Finder</title>
+  <style>
+    :root {
+      --bg: #07111e;
+      --panel: rgba(9, 22, 39, 0.8);
+      --panel-strong: rgba(12, 30, 51, 0.92);
+      --line: rgba(157, 215, 255, 0.16);
+      --text: #eef7ff;
+      --muted: #a4bfd8;
+      --accent: #ffbc42;
+      --accent-2: #58e3a2;
+      --danger: #ff8c8c;
+      --shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(88, 227, 162, 0.18), transparent 34%),
+        radial-gradient(circle at top right, rgba(255, 188, 66, 0.16), transparent 28%),
+        linear-gradient(160deg, #06101d 0%, #0d2035 46%, #040911 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.92), transparent 92%);
+    }
+
+    a {
+      color: #9dd7ff;
+    }
+
+    .shell {
+      width: min(1180px, calc(100vw - 28px));
+      margin: 26px auto 48px;
+    }
+
+    .hero {
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 6px);
+      background: linear-gradient(145deg, rgba(8, 21, 37, 0.92), rgba(11, 29, 47, 0.72));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      right: -70px;
+      top: -80px;
+      background: radial-gradient(circle, rgba(255, 188, 66, 0.4) 0%, transparent 72%);
+      filter: blur(10px);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(88, 227, 162, 0.11);
+      color: var(--accent-2);
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 800px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 16px 0 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .hero-note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-left: 3px solid var(--accent);
+      background: rgba(255, 188, 66, 0.07);
+      color: #ffdea0;
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      animation: rise 440ms ease;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 22px 0;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 1.18rem;
+      letter-spacing: -0.03em;
+    }
+
+    .panel-header span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .panel-body {
+      padding: 20px 22px 22px;
+    }
+
+    .help {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #c8dced;
+      font-size: 0.92rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 0.98rem;
+      color: var(--text);
+      background: rgba(4, 12, 22, 0.72);
+    }
+
+    textarea {
+      min-height: 170px;
+      resize: vertical;
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      line-height: 1.45;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(255, 188, 66, 0.8);
+    }
+
+    .inline-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 6px;
+      color: #d0e4f6;
+    }
+
+    .inline-toggle input {
+      width: auto;
+      accent-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, opacity 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      color: #101825;
+      background: linear-gradient(135deg, #ffbc42, #ffd67a);
+      box-shadow: 0 10px 24px rgba(255, 188, 66, 0.18);
+    }
+
+    .secondary {
+      color: var(--text);
+      background: rgba(88, 227, 162, 0.12);
+      border: 1px solid rgba(88, 227, 162, 0.18);
+    }
+
+    .ghost {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .status.error {
+      color: #ffacac;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--panel-strong);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .empty {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .price-row,
+    .deal-top,
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .price,
+    .deal-price {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: rgba(88, 227, 162, 0.12);
+      color: var(--accent-2);
+    }
+
+    .badge.warn {
+      background: rgba(255, 188, 66, 0.12);
+      color: #ffd98c;
+    }
+
+    .route {
+      margin: 8px 0 4px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .tiny {
+      font-size: 0.85rem;
+    }
+
+    .code-block {
+      margin-top: 14px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        width: min(100vw - 16px, 1000px);
+        margin-top: 12px;
+      }
+
+      .hero,
+      .panel-body,
+      .panel-header {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">GitHub-Powered Deal Watcher</div>
+      <h1>Let GitHub Actions keep scanning flight deals while your site stays simple.</h1>
+      <p>
+        This version uses GitHub Actions to refresh cached fare data from Travelpayouts on a schedule, then publishes the latest deals through a static GitHub Pages site. No always-on server needed.
+      </p>
+      <div class="hero-note">
+        This is a bargain tracker, not a live booking engine. GitHub updates the data on a timer, so prices may lag behind real checkout screens.
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="stack">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Latest Deals</h2>
+            <span>Generated by GitHub Actions</span>
+          </div>
+          <div class="panel-body">
+            <div class="meta-row">
+              <div class="help" id="metaSummary">Loading the latest scan...</div>
+              <button class="ghost" id="refreshBtn" type="button">Refresh Data</button>
+            </div>
+            <div class="status" id="dealsStatus"></div>
+            <div class="list" id="deals"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Watched Routes</h2>
+            <span>Routes stored in the repo</span>
+          </div>
+          <div class="panel-body">
+            <div class="help">
+              GitHub Actions reads <code>data/watchlist.json</code> every run. Update that file in GitHub whenever you want to add, remove, or change the routes being tracked.
+            </div>
+            <div class="status" id="watchlistStatus"></div>
+            <div class="list" id="watchlist"></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="stack">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Watchlist Builder</h2>
+            <span>Generate a JSON entry</span>
+          </div>
+          <div class="panel-body">
+            <form id="builderForm">
+              <div class="form-grid">
+                <div>
+                  <label for="label">Label</label>
+                  <input id="label" type="text" placeholder="Summer trip to LA">
+                </div>
+                <div>
+                  <label for="routeId">Route ID</label>
+                  <input id="routeId" type="text" placeholder="jfk-lax-summer">
+                </div>
+                <div>
+                  <label for="origin">Origin</label>
+                  <input id="origin" type="text" maxlength="3" placeholder="JFK" required>
+                </div>
+                <div>
+                  <label for="destination">Destination</label>
+                  <input id="destination" type="text" maxlength="3" placeholder="LAX" required>
+                </div>
+                <div>
+                  <label for="departureDate">Departure Date</label>
+                  <input id="departureDate" type="date" required>
+                </div>
+                <div>
+                  <label for="returnDate">Return Date</label>
+                  <input id="returnDate" type="date">
+                </div>
+                <div>
+                  <label for="currencyCode">Currency</label>
+                  <input id="currencyCode" type="text" maxlength="3" value="USD">
+                </div>
+                <div>
+                  <label for="maxPrice">Target Max Price</label>
+                  <input id="maxPrice" type="number" min="1" placeholder="350">
+                </div>
+                <div>
+                  <label for="maxResults">How Many Matches To Keep</label>
+                  <input id="maxResults" type="number" min="1" max="5" value="3">
+                </div>
+                <div class="inline-toggle">
+                  <input id="nonStop" type="checkbox">
+                  <label for="nonStop">Nonstop only</label>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="primary" type="submit">Generate JSON Entry</button>
+                <button class="secondary" id="copyBtn" type="button">Copy Entry</button>
+              </div>
+              <div class="status" id="builderStatus"></div>
+              <div class="code-block">
+                <label for="output">Paste this object into <code>data/watchlist.json</code></label>
+                <textarea id="output" readonly></textarea>
+              </div>
+            </form>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>GitHub Setup</h2>
+            <span>The only moving parts</span>
+          </div>
+          <div class="panel-body">
+            <div class="steps">
+              <div class="step">
+                <strong>1. Add your Travelpayouts token</strong>
+                In GitHub, open <code>Settings → Secrets and variables → Actions</code> and create a repository secret named <code>TRAVELPAYOUTS_API_TOKEN</code>.
+              </div>
+              <div class="step">
+                <strong>2. Turn on GitHub Pages</strong>
+                Publish this repo from the main branch root so this single <code>index.html</code> file becomes your live site.
+              </div>
+              <div class="step">
+                <strong>3. Trigger the scan workflow</strong>
+                Run the <code>scan-flights</code> workflow manually once, then let the schedule keep it updated.
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const els = {
+      refreshBtn: document.getElementById("refreshBtn"),
+      dealsStatus: document.getElementById("dealsStatus"),
+      metaSummary: document.getElementById("metaSummary"),
+      deals: document.getElementById("deals"),
+      watchlistStatus: document.getElementById("watchlistStatus"),
+      watchlist: document.getElementById("watchlist"),
+      builderForm: document.getElementById("builderForm"),
+      builderStatus: document.getElementById("builderStatus"),
+      copyBtn: document.getElementById("copyBtn"),
+      output: document.getElementById("output")
+    };
+
+    function emptyState(message) {
+      return `<div class="empty">${message}</div>`;
+    }
+
+    function setStatus(target, message, isError = false) {
+      target.textContent = message || "";
+      target.classList.toggle("error", Boolean(isError));
+    }
+
+    function formatMoney(value, currency = "USD") {
+      if (value == null || value === "") {
+        return "No fare found";
+      }
+
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 0
+      }).format(Number(value));
+    }
+
+    function formatDateTime(value) {
+      if (!value) {
+        return "unknown time";
+      }
+      return new Date(value).toLocaleString();
+    }
+
+    function formatDuration(minutes) {
+      const total = Number(minutes || 0);
+      if (!total) {
+        return "";
+      }
+      const hours = Math.floor(total / 60);
+      const remainder = total % 60;
+      if (hours && remainder) {
+        return `${hours}h ${remainder}m`;
+      }
+      if (hours) {
+        return `${hours}h`;
+      }
+      return `${remainder}m`;
+    }
+
+    async function fetchJson(path) {
+      const response = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Could not load ${path}.`);
+      }
+      return response.json();
+    }
+
+    function renderDeals(payload) {
+      const deals = payload.deals || [];
+      if (!deals.length) {
+        els.deals.innerHTML = emptyState("No scanned deals yet. Add routes to data/watchlist.json and run the GitHub Actions workflow once.");
+        return;
+      }
+
+      els.deals.innerHTML = deals.map((deal) => `
+        <article class="card">
+          <div class="deal-top">
+            <div>
+              <div class="deal-price">${formatMoney(deal.bestPrice, deal.currency)}</div>
+              <div class="muted tiny">${deal.label || deal.route.label || deal.route.id || "Tracked route"}</div>
+            </div>
+            <div class="badge ${deal.underTarget ? "" : "warn"}">
+              ${deal.underTarget ? "Under target" : "Best seen"}
+            </div>
+          </div>
+          <div class="route">${deal.route.origin} &rarr; ${deal.route.destination}</div>
+          <div class="muted tiny">
+            ${deal.route.departureDate}${deal.route.returnDate ? ` &rarr; ${deal.route.returnDate}` : ""}
+            &middot; Checked ${formatDateTime(deal.checkedAt)}
+          </div>
+          <div class="help">
+            ${deal.offer ? `${deal.offer.provider} &middot; ${deal.offer.stopsLabel}${deal.offer.durationMinutes ? ` &middot; ${formatDuration(deal.offer.durationMinutes)}` : ""}` : (deal.error || "No matching fare in the latest scan.")}
+          </div>
+          ${deal.offer?.foundAt ? `<div class="muted tiny">Fare was found ${formatDateTime(deal.offer.foundAt)}</div>` : ""}
+          ${deal.offer?.deepLink ? `<div class="tiny"><a href="${deal.offer.deepLink}" target="_blank" rel="noreferrer">Open this fare on Aviasales</a></div>` : ""}
+        </article>
+      `).join("");
+    }
+
+    function renderWatchlist(payload) {
+      const watchlist = payload.watchlist || [];
+      if (!watchlist.length) {
+        els.watchlist.innerHTML = emptyState("No watched routes yet. Use the builder on this page, then paste the generated object into data/watchlist.json in GitHub.");
+        return;
+      }
+
+      els.watchlist.innerHTML = watchlist.map((route) => `
+        <article class="card">
+          <div class="route">${route.origin} &rarr; ${route.destination}</div>
+          <div class="muted tiny">
+            ${route.label || route.id || "Tracked route"} &middot; ${route.departureDate}${route.returnDate ? ` &rarr; ${route.returnDate}` : ""}
+          </div>
+          <div class="help">
+            ${route.nonStop ? "Nonstop only" : "Any stops"} &middot; Target ${route.maxPrice ? formatMoney(route.maxPrice, route.currencyCode || "USD") : "none"} &middot; Keep ${route.maxResults || 3} match${Number(route.maxResults || 3) === 1 ? "" : "es"}
+          </div>
+        </article>
+      `).join("");
+    }
+
+    async function loadDashboard() {
+      try {
+        setStatus(els.dealsStatus, "Loading latest scan...");
+        setStatus(els.watchlistStatus, "Loading watched routes...");
+
+        const [dealsPayload, watchlistPayload] = await Promise.all([
+          fetchJson("data/latest_deals.json"),
+          fetchJson("data/watchlist.json")
+        ]);
+
+        const generatedAt = dealsPayload.generatedAt ? formatDateTime(dealsPayload.generatedAt) : "not scanned yet";
+        els.metaSummary.textContent = `Last scan: ${generatedAt}. Watching ${watchlistPayload.watchlist?.length || 0} route${watchlistPayload.watchlist?.length === 1 ? "" : "s"}.`;
+
+        renderDeals(dealsPayload);
+        renderWatchlist(watchlistPayload);
+
+        setStatus(els.dealsStatus, `Loaded ${dealsPayload.deals?.length || 0} deal record${dealsPayload.deals?.length === 1 ? "" : "s"}.`);
+        setStatus(els.watchlistStatus, `Loaded ${watchlistPayload.watchlist?.length || 0} watched route${watchlistPayload.watchlist?.length === 1 ? "" : "s"}.`);
+      } catch (error) {
+        els.metaSummary.textContent = "The page is live, but the generated data files are not ready yet.";
+        renderDeals({ deals: [] });
+        renderWatchlist({ watchlist: [] });
+        setStatus(els.dealsStatus, error.message || "Could not load deals.", true);
+        setStatus(els.watchlistStatus, error.message || "Could not load watchlist.", true);
+      }
+    }
+
+    function buildRouteObject() {
+      const label = document.getElementById("label").value.trim();
+      const routeId = document.getElementById("routeId").value.trim();
+      const origin = document.getElementById("origin").value.trim().toUpperCase();
+      const destination = document.getElementById("destination").value.trim().toUpperCase();
+      const departureDate = document.getElementById("departureDate").value.trim();
+      const returnDate = document.getElementById("returnDate").value.trim();
+      const currencyCode = document.getElementById("currencyCode").value.trim().toUpperCase() || "USD";
+      const maxPrice = document.getElementById("maxPrice").value.trim();
+      const maxResults = Number(document.getElementById("maxResults").value || 3);
+      const nonStop = document.getElementById("nonStop").checked;
+
+      if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(destination)) {
+        throw new Error("Use 3-letter codes like JFK and LAX.");
+      }
+
+      if (!departureDate) {
+        throw new Error("Pick a departure date.");
+      }
+
+      const route = {
+        id: routeId || `${origin.toLowerCase()}-${destination.toLowerCase()}-${departureDate}`,
+        label: label || `${origin} to ${destination}`,
+        origin,
+        destination,
+        departureDate,
+        returnDate: returnDate || "",
+        nonStop,
+        currencyCode,
+        maxPrice: maxPrice ? Number(maxPrice) : null,
+        maxResults: Math.min(Math.max(maxResults, 1), 5)
+      };
+
+      return JSON.stringify(route, null, 2);
+    }
+
+    async function copyOutput() {
+      try {
+        if (!els.output.value) {
+          throw new Error("Generate an entry first.");
+        }
+        await navigator.clipboard.writeText(els.output.value);
+        setStatus(els.builderStatus, "JSON entry copied. Paste it into data/watchlist.json in GitHub.");
+      } catch (error) {
+        setStatus(els.builderStatus, error.message || "Could not copy the entry.", true);
+      }
+    }
+
+    function primeDates() {
+      const departure = new Date();
+      departure.setDate(departure.getDate() + 30);
+      const returning = new Date();
+      returning.setDate(returning.getDate() + 37);
+      document.getElementById("departureDate").value = departure.toISOString().slice(0, 10);
+      document.getElementById("returnDate").value = returning.toISOString().slice(0, 10);
+      document.getElementById("output").value = "{\n  \"id\": \"replace-me\",\n  \"label\": \"Replace me\",\n  \"origin\": \"JFK\",\n  \"destination\": \"LAX\",\n  \"departureDate\": \"2026-06-20\",\n  \"returnDate\": \"2026-06-27\",\n  \"nonStop\": false,\n  \"currencyCode\": \"USD\",\n  \"maxPrice\": 350,\n  \"maxResults\": 3\n}";
+    }
+
+    els.refreshBtn.addEventListener("click", loadDashboard);
+    els.builderForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      try {
+        els.output.value = buildRouteObject();
+        setStatus(els.builderStatus, "Entry generated. Add a comma between objects if your watchlist already has routes.");
+      } catch (error) {
+        setStatus(els.builderStatus, error.message || "Could not generate the entry.", true);
+      }
+    });
+    els.copyBtn.addEventListener("click", copyOutput);
+
+    primeDates();
+    loadDashboard();
+  </script>
+</body>
+</html>
