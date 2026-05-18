@@ -1,6 +1,27 @@
 {
-  "generatedAt": null,
+  "generatedAt": "2026-05-18T20:19:40.663Z",
   "source": "travelpayouts-aviasales-data-api",
   "market": "us",
-  "deals": []
+  "deals": [
+    {
+      "label": "Summer trip to LA",
+      "route": {
+        "id": "jfk-lax-summer",
+        "label": "Summer trip to LA",
+        "origin": "JFK",
+        "destination": "LAX",
+        "departureDate": "2026-06-20",
+        "returnDate": "2026-06-27",
+        "nonStop": false,
+        "currencyCode": "USD",
+        "maxPrice": 350,
+        "maxResults": 3
+      },
+      "checkedAt": "2026-05-18T20:19:40.663Z",
+      "bestPrice": null,
+      "currency": "USD",
+      "underTarget": false,
+      "offer": null
+    }
+  ]
 }
