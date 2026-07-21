@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-21T21:33:17.682Z",
+  "generatedAt": "2026-07-21T22:36:56.089Z",
   "source": "travelpayouts-aviasales-data-api",
   "market": "us",
   "deals": [
@@ -17,7 +17,7 @@
         "maxPrice": 350,
         "maxResults": 3
       },
-      "checkedAt": "2026-07-21T21:33:17.681Z",
+      "checkedAt": "2026-07-21T22:36:56.089Z",
       "bestPrice": null,
       "currency": "USD",
       "underTarget": false,
